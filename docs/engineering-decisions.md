@@ -91,3 +91,18 @@ Consequences:
 - White back rank is B N K N R.
 - Black back rank is r n k n b.
 - Promotion rows are 0 for White and ROWS - 1 for Black.
+
+## 008 - Browser-first 5x7 game
+
+Decision:
+The project is now officially a browser-first 5x7 chess variant. The terminal gameplay mode was removed.
+
+Rationale:
+The browser UI is the product experience. The previous CLI mode was useful during early engine validation, but keeping it as a public mode created duplicated documentation, extra scripts, and unnecessary maintenance. The engine remains fully testable through automated tests.
+
+Consequences:
+
+- `npm start` now runs the web server.
+- `src/cli.js` and `src/display.js` were removed.
+- The official architecture is Browser UI -> WebSocket server -> game engine.
+- The official board size is 5x7.

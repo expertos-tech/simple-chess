@@ -185,4 +185,8 @@ function start(opts = {}) {
   });
 }
 
+if (require.main === module) {
+  start();
+}
+
 module.exports = { start };

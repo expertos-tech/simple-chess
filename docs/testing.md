@@ -1,21 +1,28 @@
 # Testing
 
-## Run tests
+## Overview
+
+The project uses the built-in Node.js test runner. Tests are located in the `test/` directory.
+
+## Running tests
 
 ```bash
 npm test
 ```
 
-## What is covered
+To run a specific test file:
 
-- Board creation/cloning and basic move application.
-- Move parsing and status evaluation.
-- Legal move generation basics for each piece type.
-- Check detection and filtering out illegal self-check moves.
-- AI move selection returns a legal move when available.
+```bash
+node --test test/board.test.js
+```
 
-## Adding tests
+## Coverage
 
-- Add files under `test/` using Node's test runner:
-  - `const test = require('node:test');`
-  - `const assert = require('node:assert/strict');`
+- `test/board.test.js`: Validates board initialization, piece placement, and piece counts.
+- `test/moves.test.js`: Validates move generation for all pieces, including promotion and check detection.
+- `test/game.test.js`: Validates coordinate parsing and game status detection.
+- `test/ai.test.js`: Validates AI move selection and basic tactical awareness.
+
+## Validation Policy
+
+Always run `npm run check` before submitting changes. This ensures that the code follows styling rules, passes all unit tests, and is properly formatted.

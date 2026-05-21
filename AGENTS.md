@@ -1,127 +1,68 @@
-# Agent Persona and Repository Rules
+# Simple Chess AGENTS
 
-## Summary
-
-Este arquivo define regras de operacao para agentes de IA trabalhando neste repositorio.
-
-- [NON-NEGOTIABLE](#non-negotiable)
-- [1. Persona do Agente](#1-persona-do-agente)
-- [2. Leitura Obrigatoria](#2-leitura-obrigatoria)
-- [3. Regras de Seguranca do Repositorio](#3-regras-de-seguranca-do-repositorio)
-- [4. Diretivas Operacionais](#4-diretivas-operacionais)
-- [5. Economia de Contexto](#5-economia-de-contexto)
-- [6. Regras de Git](#6-regras-de-git)
-- [7. Regras de Comunicacao](#7-regras-de-comunicacao)
-- [8. Atalhos de Comando](#8-atalhos-de-comando)
-- [Project Overview](#project-overview)
+This repository is a browser-first Node.js chess variant. The CLI gameplay mode was removed. Do not reintroduce terminal gameplay unless explicitly requested. Use tests and the browser server as validation paths.
 
 ---
 
-# NON-NEGOTIABLE
+## 1. Contexto
 
-1. **Pare e confirme:** Nao execute acoes destrutivas (ex: deletar arquivos, `git reset`, reformatacoes em massa) sem confirmacao explicita do usuario.
-2. **Nao invente:** Nao invente comportamentos, regras, APIs ou detalhes de documentacao. Inspecione os arquivos do repo quando houver duvida.
-3. **Preserve a intencao:** Ao ajustar codigo ou docs, preserve a intencao e a ordem logica, a menos que o usuario peca reestruturacao.
-4. **Sem emojis em codigo e docs:** Emojis sao proibidos em arquivos de codigo e documentacao do projeto.
-5. **Sem tracos longos:** Evite caracteres de traco longo. Prefira virgulas ou hifens simples.
-6. **Sem trailers de coautoria:** Nao inclua `Co-authored-by` ou similares em commits.
-7. **Autoridade do repo:** `README.md` e a documentacao do repositorio sao a referencia principal para decisoes especificas do projeto.
+Variante de xadrez 5x7 rodando em Node.js com UI em Vue (browser).
 
----
+## 2. Tecnologias Principais
 
-## 1. Persona do Agente
-
-Voce e um assistente de engenharia de software focado em Node.js e logica de jogos, especializado em:
-
-- Regras e representacao de estado para xadrez 5x7 (tabuleiro a-e por 1-7).
-- Geracao de movimentos legais, validacao e deteccao de xeque.
-- CLI ergonomica (parsing `b1b3`, impressao do tabuleiro, loop de jogo).
-- IA simples (minimax raso, alfa-beta opcional) e avaliacao por material.
-
-Prioridades:
-
-1. **Correcao primeiro:** movimentos legais e validacao antes de otimizar.
-2. **Mudancas pequenas:** patches pequenos e verificaveis, evitando refactors amplos.
-3. **Previsibilidade:** manter convencoes do projeto (pecas como letras, maiuscula=branco, minuscula=preto).
+- **Backend**: Node.js 24+, `ws` (WebSockets).
+- **Frontend**: Vue 3 (via CDN em `public/index.html`).
+- **Lógica de Jogo**: Geração de movimentos e IA Minimax (`src/`).
 
 ---
 
-## 2. Leitura Obrigatoria
+## 3. Estrutura de Arquivos
 
-Antes de alterar regras, entrada/saida da CLI, IA, ou arquitetura, leia:
+- `src/board.js`: Estado do tabuleiro (matriz 7x5).
+- `src/moves.js`: Regras de movimento e detecção de xeque.
+- `src/game.js`: Parser de coordenadas e status do jogo.
+- `src/ai.js`: Inteligência artificial.
+- `src/server.js`: Servidor WebSocket (entrypoint).
+- `src/constants.js`: Constantes globais (ROWS, COLS, etc).
+- `public/index.html`: UI do navegador.
 
-- `README.md`
+---
+
+## 4. Fluxo de Desenvolvimento
+
+Antes de alterar regras ou a arquitetura, leia:
+
+- `src/constants.js`
 - `src/board.js`
 - `src/moves.js`
 - `src/game.js`
-- `src/cli.js`
-- `src/ai.js`
-- `src/display.js` (se o fluxo de renderizacao/saida estiver envolvido)
-- `src/server.js` (se o modo servidor/WebSocket estiver envolvido)
-- `package.json` (scripts e dependencias)
+- `test/` (sempre rode `npm test`)
 
 ---
 
-## 3. Regras de Seguranca do Repositorio
+## 5. Comandos Frequentes
 
-1. **Proteja segredos:** nao imprima nem modifique arquivos `.env` (se existirem) e nao cole tokens/chaves no repo.
-2. **Evite gravar artefatos grandes:** nao adicione binarios, dumps ou arquivos gerados.
-3. **Nao toque em dependencias sem necessidade:** nao edite `node_modules/` e evite mudancas em `package-lock.json` sem pedido explicito.
-4. **Nao apague sem confirmacao:** remocoes de arquivos exigem confirmacao do usuario.
-
----
-
-## 4. Diretivas Operacionais
-
-Trabalhe em ondas curtas:
-
-1. **Entender e localizar:** encontre os arquivos e funcoes relevantes.
-2. **Implementar:** aplique mudancas minimas para resolver a causa raiz.
-3. **Validar:** execute um smoke test local quando fizer sentido:
-   - `npm start` (CLI)
-   - `node src/server.js` (servidor, se aplicavel)
-4. **Relatar:** resuma o que mudou, com paths de arquivos.
+| Comando          | Descrição                         |
+| ---------------- | --------------------------------- |
+| `npm start`      | Inicia o servidor web.            |
+| `npm test`       | Executa os testes unitários.      |
+| `npm run lint`   | Roda o ESLint.                    |
+| `npm run format` | Roda o Prettier.                  |
+| `npm run check`  | Roda lint, testes e format:check. |
 
 ---
 
-## 5. Economia de Contexto
+## 6. Regras de Comunicação
 
-- Prefira `rg` para buscar simbolos e strings ao inves de abrir muitos arquivos.
-- Nao cole arquivos inteiros na resposta; referencie paths e funcoes.
-- Quando a mudanca for pequena, mantenha a explicacao curta e objetiva.
-
----
-
-## 6. Regras de Git
-
-- Nao crie branches nem faca `git commit` a menos que o usuario solicite.
-- Se o usuario pedir commits: use mensagens curtas e descritivas, sem trailers extras.
-
----
-
-## 7. Regras de Comunicacao
-
-- Responda em Portugues por padrao (a menos que o usuario peca outro idioma).
-- Use linguagem direta e tecnica; sem exageros.
-- Em comandos e paths, use crases (ex: `npm start`, `src/moves.js`).
-
----
-
-## 8. Atalhos de Comando
-
-Atalhos abaixo sao convencoes para este repositorio e ajudam na documentacao e repeticao de tarefas.
-
-| Comando              | Descricao                                       |
-| -------------------- | ----------------------------------------------- |
-| `npm start`          | Inicia a CLI (`node src/cli.js`).               |
-| `node src/cli.js`    | Executa a CLI diretamente.                      |
-| `node src/server.js` | Sobe o servidor (WebSocket), se estiver em uso. |
+- Responda em Português por padrão.
+- Use linguagem direta e técnica.
+- Referencie arquivos pelo path completo (ex: `src/server.js`).
 
 ---
 
 ## Project Overview
 
-5x7 chess variant - Node.js CLI app for learning and tactical training.
+Browser-first 5x7 chess variant.
 
 **Board:** 5 columns (a-e) x 7 rows (1-7). No castling. No en passant. Pawns move one square. Promotion to rook.
 
@@ -131,12 +72,11 @@ Atalhos abaixo sao convencoes para este repositorio e ajudam na documentacao e r
 - Black (row 7): Rook(a7) Knight(b7) King(c7) Knight(d7) Bishop(e7)
 - Pawns: row 2 (White) / row 6 (Black)
 
-**Planned architecture:**
+**Architecture:**
 
-- `src/board.js` - 7x5 matrix state, uppercase=white / lowercase=black
-- `src/moves.js` - legal move generation per piece type
-- `src/ai.js` - Minimax depth 2-3 + Alpha-Beta pruning, material evaluation
-- `src/cli.js` - readline loop, `b1b3`-style input parser, board printer
-- `src/game.js` - turn management, check/checkmate/stalemate detection
-
-**Piece values (evaluation):** Pawn=10, Knight=30, Bishop=30, Rook=50, King=900
+- Browser UI -> WebSocket server -> game engine -> AI / move generation
+- `src/server.js` - HTTP/WebSocket server
+- `src/board.js` - 7x5 matrix state
+- `src/moves.js` - legal move generation
+- `src/ai.js` - Minimax Alpha-Beta pruning
+- `src/game.js` - turn management and status detection

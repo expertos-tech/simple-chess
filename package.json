@@ -1,12 +1,11 @@
 {
   "name": "simple-chess",
   "version": "1.0.0",
-  "description": "5x7 chess variant - CLI game with minimal AI",
-  "main": "src/cli.js",
+  "description": "5x7 chess variant - Browser-first game with minimal AI",
+  "main": "src/server.js",
   "scripts": {
-    "start": "node src/cli.js",
-    "start:cli": "node src/cli.js",
-    "start:browser": "node src/cli.js --browser",
+    "start": "node src/server.js",
+    "start:browser": "node src/server.js",
     "build:docs": "npm run build:docs:readme",
     "build:docs:board": "node scripts/build-docs-board.js",
     "build:docs:readme": "node scripts/build-docs-index.js",

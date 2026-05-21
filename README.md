@@ -1,6 +1,6 @@
 # ♟️ Simple Chess 5x7
 
-A fast-paced, compact chess variant played on a 5x7 grid. Perfect for quick tactical training or learning the basics without the complexity of a full board.
+Simple Chess 5x7 is a compact browser-based chess variant powered by a small Node.js game engine. Perfect for quick tactical training or learning the basics without the complexity of a full board.
 
 ---
 
@@ -20,13 +20,11 @@ npm install
 
 Run:
 
-- Console mode:
-  - `npm start`
-- Browser mode:
-  - `npm run start:browser`
-  - open [http://localhost:3000/](http://localhost:3000/)
+```bash
+npm start
+```
 
-> Note: to run on a server, the WebSocket server must be running and reachable.
+Open [http://localhost:3000/](http://localhost:3000/)
 
 ---
 
@@ -62,16 +60,6 @@ This version is designed for speed while keeping the core "soul" of chess.
 
 ## Gameplay Details
 
-### Terminal Mode
-
-Experience chess in its rawest form directly in your shell.
-
-- How to move: Use coordinate notation (e.g., a2a3).
-- AI: You play as White; the computer plays as Black.
-- Visuals: 8-bit style Unicode sprites on an ANSI checkerboard.
-
-![Terminal board](docs/images/prompt-board.png)
-
 ### Browser Mode
 
 A modern, point-and-click interface.
@@ -96,7 +84,6 @@ A modern, point-and-click interface.
 
 ```bash
 npm start
-npm run start:browser
 npm test
 npm run lint
 npm run format:check

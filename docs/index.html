@@ -163,8 +163,9 @@
     <main class="wrap">
       <h1>♟️ Simple Chess 5x7</h1>
       <p>
-        A fast-paced, compact chess variant played on a 5x7 grid. Perfect for quick tactical
-        training or learning the basics without the complexity of a full board.
+        Simple Chess 5x7 is a compact browser-based chess variant powered by a small Node.js game
+        engine. Perfect for quick tactical training or learning the basics without the complexity of
+        a full board.
       </p>
       <hr />
       <h2>Quick Start</h2>
@@ -176,24 +177,9 @@ npm install
 </code></pre>
       <h3>Step 2</h3>
       <p>Run:</p>
-      <ul>
-        <li>
-          Console mode:
-          <ul>
-            <li><code>npm start</code></li>
-          </ul>
-        </li>
-        <li>
-          Browser mode:
-          <ul>
-            <li><code>npm run start:browser</code></li>
-            <li>open <a href="http://localhost:3000/">http://localhost:3000/</a></li>
-          </ul>
-        </li>
-      </ul>
-      <blockquote>
-        <p>Note: to run on a server, the WebSocket server must be running and reachable.</p>
-      </blockquote>
+      <pre><code class="language-bash">npm start
+</code></pre>
+      <p>Open <a href="http://localhost:3000/">http://localhost:3000/</a></p>
       <hr />
       <h2>Documentation</h2>
       <ul>
@@ -237,7 +223,7 @@ npm install
           </tr>
           <tr>
             <td align="left">Setup</td>
-            <td align="left">[B][R][K][R][N] vs [B][R][K][R][N].</td>
+            <td align="left">[B][N][K][N][R] vs [r][n][k][n][b].</td>
           </tr>
           <tr>
             <td align="left">Pawns</td>
@@ -259,14 +245,6 @@ npm install
       </table>
       <hr />
       <h2>Gameplay Details</h2>
-      <h3>Terminal Mode</h3>
-      <p>Experience chess in its rawest form directly in your shell.</p>
-      <ul>
-        <li>How to move: Use coordinate notation (e.g., a2a3).</li>
-        <li>AI: You play as White; the computer plays as Black.</li>
-        <li>Visuals: 8-bit style Unicode sprites on an ANSI checkerboard.</li>
-      </ul>
-      <p><img src="images/prompt-board.png" alt="Terminal board" /></p>
       <h3>Browser Mode</h3>
       <p>A modern, point-and-click interface.</p>
       <ul>
@@ -285,7 +263,6 @@ npm install
       </ul>
       <h3>Scripts</h3>
       <pre><code class="language-bash">npm start
-npm run start:browser
 npm test
 npm run lint
 npm run format:check
