@@ -28,7 +28,38 @@ Variante de xadrez 5x7 rodando em Node.js com UI em Vue (browser).
 
 ---
 
-## 4. Fluxo de Desenvolvimento
+## 4. Commit Message Convention
+
+This project follows a semantic and functional commit pattern. Commits must be written in **English**.
+
+- **Structure**: `type: short functional title` followed by a list of detailed bullets.
+- **Tone**: Focus on "what" and "why" from a functional perspective rather than just listing files.
+- **Types**:
+  - `feat`: New features or rules.
+  - `fix`: Bug fixes.
+  - `docs`: Documentation updates.
+  - `refactor`: Code changes that neither fix a bug nor add a feature.
+  - `test`: Adding or updating tests.
+
+**Example:**
+```txt
+feat: update initial board setup
+- Change pieces to B-N-K-N-R formation
+- Center the king between two knights
+- Update rules documentation to match new layout
+```
+
+---
+
+## 5. Functional Guidelines
+
+- **Product First**: When describing changes, prioritize how they affect the game experience (e.g., "The game now starts faster" instead of "Optimized loop in server.js").
+- **Language**: Use English for commits, changelogs, and internal documentation (like this section).
+- **Simplicity**: Avoid over-engineering. Stick to the requested 5x7 browser-first scope.
+
+---
+
+## 6. Fluxo de Desenvolvimento
 
 Antes de alterar regras ou a arquitetura, leia:
 

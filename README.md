@@ -6,25 +6,14 @@ Simple Chess 5x7 is a compact browser-based chess variant powered by a small Nod
 
 ## Quick Start
 
-### Step 1
-
-Clone the repository and install dependencies:
-
 ```bash
 git clone https://github.com/expertos-tech/simple-chess.git
 cd simple-chess
 npm install
-```
-
-### Step 2
-
-Run:
-
-```bash
 npm start
 ```
 
-Open [http://localhost:3000/](http://localhost:3000/)
+Open: [http://localhost:3000/](http://localhost:3000/)
 
 ---
 
@@ -55,6 +44,19 @@ This version is designed for speed while keeping the core "soul" of chess.
 | Promotion | Pawns promote to Rook upon reaching the 7th rank. |
 | Castling  | Removed for the smaller board.                    |
 | Special   | No Queens. No En Passant.                         |
+
+### Initial Position
+
+```txt
+7   r  n  k  n  b
+6   p  p  p  p  p
+5   .  .  .  .  .
+4   .  .  .  .  .
+3   .  .  .  .  .
+2   P  P  P  P  P
+1   B  N  K  N  R
+    a  b  c  d  e
+```
 
 ---
 
