@@ -7,7 +7,7 @@
     "start": "node src/cli.js",
     "start:cli": "node src/cli.js",
     "start:browser": "node src/cli.js --browser",
-    "build:docs": "npm run build:docs:readme && npm run build:docs:board",
+    "build:docs": "npm run build:docs:readme",
     "build:docs:board": "node scripts/build-docs-board.js",
     "build:docs:readme": "node scripts/build-docs-index.js",
     "test": "node --test",

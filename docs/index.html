@@ -34,6 +34,26 @@
         line-height: 1.55;
       }
 
+      .topbar {
+        width: min(920px, 94vw);
+        margin: 20px auto 0;
+        display: flex;
+        justify-content: flex-end;
+      }
+
+      .github-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 0.9rem;
+      }
+
+      .github-link svg {
+        width: 18px;
+        height: 18px;
+        fill: currentColor;
+      }
+
       .wrap {
         width: min(920px, 94vw);
         margin: 28px auto 48px;
@@ -125,6 +145,21 @@
     </style>
   </head>
   <body>
+    <header class="topbar">
+      <a
+        class="github-link"
+        href="https://github.com/expertos-tech/simple-chess"
+        target="_blank"
+        rel="noopener"
+      >
+        <svg viewBox="0 0 16 16" aria-hidden="true">
+          <path
+            d="M8 0.5C3.86 0.5 0.5 3.86 0.5 8c0 3.32 2.17 6.13 5.17 7.12.38.07.52-.17.52-.38 0-.19-.01-.82-.01-1.48-1.89.35-2.38-.46-2.53-.88-.09-.22-.48-.88-.82-1.06-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.53.28-.87.5-1.07-1.68-.19-3.44-.84-3.44-3.73 0-.82.29-1.49.77-2.02-.08-.19-.34-.96.07-2 0 0 .63-.2 2.06.77A7.14 7.14 0 0 1 8 4.77c.64 0 1.28.09 1.88.26 1.43-.97 2.06-.77 2.06-.77.41 1.04.15 1.81.07 2 .48.53.77 1.2.77 2.02 0 2.9-1.77 3.54-3.45 3.73.29.25.54.74.54 1.49 0 1.08-.01 1.95-.01 2.22 0 .21.14.46.52.38A7.52 7.52 0 0 0 15.5 8C15.5 3.86 12.14 0.5 8 0.5Z"
+          />
+        </svg>
+        github.com/expertos-tech/simple-chess
+      </a>
+    </header>
     <main class="wrap">
       <h1>♟️ Simple Chess 5x8</h1>
       <p>
@@ -133,44 +168,34 @@
       </p>
       <hr />
       <h2>Quick Start</h2>
-      <p>Choose your preferred way to play:</p>
-      <h3>Prompt Board</h3>
-      <ul>
-        <li>Build: <code>npm run build:docs:board</code></li>
-      </ul>
-      <h3>Web Board</h3>
-      <h4>Local</h4>
-      <ul>
-        <li>Start: <code>npm run start:browser</code></li>
-        <li>Open: <a href="http://localhost:3000/">http://localhost:3000/</a></li>
-      </ul>
-      <h4>GitHub Pages</h4>
-      <ul>
-        <li>
-          Play now:
-          <a href="http://expertos-tech.github.io/simple-chess/board-web.html"
-            >http://expertos-tech.github.io/simple-chess/board-web.html</a
-          >
-        </li>
-      </ul>
-      <h3>Play in Terminal</h3>
-      <p>Launch the interactive command-line game:</p>
-      <pre><code class="language-bash">npm start
-</code></pre>
-      <h3>Play in Browser</h3>
-      <p>Start the server and open the graphical interface:</p>
-      <pre><code class="language-bash">npm run start:browser
-</code></pre>
-      <hr />
-      <h2>Installation</h2>
-      <p>Before playing, ensure you have Node.js (version 24 or higher) installed:</p>
-      <pre><code class="language-bash"># 1. Clone the repository
-git clone &lt;repo-url&gt;
+      <p>Passo 1) Clonar o projeto no git e instalar dependencias:</p>
+      <pre><code class="language-bash">git clone &lt;repo-url&gt;
 cd simple-chess
-
-# 2. Install dependencies
 npm install
 </code></pre>
+      <p>Passo 2) Executar:</p>
+      <ul>
+        <li>2.1) Modo console: <code>npm start</code></li>
+        <li>
+          2.2) Modo browser: <code>npm run start:browser</code> e abrir
+          <a href="http://localhost:3000/">http://localhost:3000/</a>
+        </li>
+      </ul>
+      <p>
+        Observacao: para rodar em um servidor, o servidor WebSocket precisa estar rodando e
+        acessivel.
+      </p>
+      <hr />
+      <h2>Documentacao</h2>
+      <ul>
+        <li><a href="architecture.md">Arquitetura</a></li>
+        <li><a href="engineering-decisions.md">Decisoes de engenharia</a></li>
+        <li><a href="rules.md">Regras</a></li>
+        <li><a href="testing.md">Testes</a></li>
+      </ul>
+      <hr />
+      <h2>Installation</h2>
+      <p>Before playing, ensure you have Node.js (version 24 or higher) installed.</p>
       <hr />
       <h2>The 5x8 Variant Rules</h2>
       <p>This version is designed for speed while keeping the core &quot;soul&quot; of chess.</p>

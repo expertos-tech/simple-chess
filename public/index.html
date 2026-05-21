@@ -491,6 +491,36 @@
 
           let ws = null;
 
+          function getWsOverride() {
+            const params = new URLSearchParams(location.search);
+            const fromQuery = params.get('ws');
+            if (fromQuery) return fromQuery;
+            if (typeof window !== 'undefined' && window.SIMPLE_CHESS_WS)
+              return window.SIMPLE_CHESS_WS;
+            return null;
+          }
+
+          function resolveWsBase() {
+            const override = getWsOverride();
+            const scheme = location.protocol === 'https:' ? 'wss' : 'ws';
+            if (override) {
+              if (/^wss?:\/\//i.test(override)) return override;
+              return `${scheme}://${override}`;
+            }
+            const isLocal =
+              location.hostname === 'localhost' ||
+              location.hostname === '127.0.0.1' ||
+              location.hostname === '';
+            const host = isLocal ? `${location.hostname || 'localhost'}:3000` : location.host;
+            return `${scheme}://${host}`;
+          }
+
+          function buildWsUrl(side) {
+            const url = new URL(resolveWsBase());
+            url.searchParams.set('side', side);
+            return url.toString();
+          }
+
           const sideSelected = computed(
             () => playerSide.value === 'white' || playerSide.value === 'black'
           );
@@ -511,7 +541,7 @@
 
           function chooseSide(side) {
             playerSide.value = side;
-            ws = new WebSocket(`ws://${location.host}?side=${encodeURIComponent(side)}`);
+            ws = new WebSocket(buildWsUrl(side));
             ws.onopen = () => {
               connected.value = true;
             };

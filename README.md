@@ -6,53 +6,35 @@ A fast-paced, compact chess variant played on a 5x8 grid. Perfect for quick tact
 
 ## Quick Start
 
-Choose your preferred way to play:
-
-### Prompt Board
-
-- Build: `npm run build:docs:board`
-
-### Web Board
-
-#### Local
-
-- Start: `npm run start:browser`
-- Open: [http://localhost:3000/](http://localhost:3000/)
-
-#### GitHub Pages
-
-- Play now: [http://expertos-tech.github.io/simple-chess/board-web.html](http://expertos-tech.github.io/simple-chess/board-web.html)
-
-### Play in Terminal
-
-Launch the interactive command-line game:
+Passo 1) Clonar o projeto no git e instalar dependencias:
 
 ```bash
-npm start
+git clone <repo-url>
+cd simple-chess
+npm install
 ```
 
-### Play in Browser
+Passo 2) Executar:
 
-Start the server and open the graphical interface:
+- 2.1) Modo console: `npm start`
+- 2.2) Modo browser: `npm run start:browser` e abrir [http://localhost:3000/](http://localhost:3000/)
 
-```bash
-npm run start:browser
-```
+Observacao: para rodar em um servidor, o servidor WebSocket precisa estar rodando e acessivel.
+
+---
+
+## Documentacao
+
+- [Arquitetura](docs/architecture.md)
+- [Decisoes de engenharia](docs/engineering-decisions.md)
+- [Regras](docs/rules.md)
+- [Testes](docs/testing.md)
 
 ---
 
 ## Installation
 
-Before playing, ensure you have Node.js (version 24 or higher) installed:
-
-```bash
-# 1. Clone the repository
-git clone <repo-url>
-cd simple-chess
-
-# 2. Install dependencies
-npm install
-```
+Before playing, ensure you have Node.js (version 24 or higher) installed.
 
 ---
 

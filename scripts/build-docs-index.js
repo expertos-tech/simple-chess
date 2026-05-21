@@ -51,6 +51,26 @@ function buildHtml({ title, bodyHtml }) {
         line-height: 1.55;
       }
 
+      .topbar {
+        width: min(920px, 94vw);
+        margin: 20px auto 0;
+        display: flex;
+        justify-content: flex-end;
+      }
+
+      .github-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 0.9rem;
+      }
+
+      .github-link svg {
+        width: 18px;
+        height: 18px;
+        fill: currentColor;
+      }
+
       .wrap {
         width: min(920px, 94vw);
         margin: 28px auto 48px;
@@ -142,6 +162,21 @@ function buildHtml({ title, bodyHtml }) {
     </style>
   </head>
   <body>
+    <header class="topbar">
+      <a
+        class="github-link"
+        href="https://github.com/expertos-tech/simple-chess"
+        target="_blank"
+        rel="noopener"
+      >
+        <svg viewBox="0 0 16 16" aria-hidden="true">
+          <path
+            d="M8 0.5C3.86 0.5 0.5 3.86 0.5 8c0 3.32 2.17 6.13 5.17 7.12.38.07.52-.17.52-.38 0-.19-.01-.82-.01-1.48-1.89.35-2.38-.46-2.53-.88-.09-.22-.48-.88-.82-1.06-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.53.28-.87.5-1.07-1.68-.19-3.44-.84-3.44-3.73 0-.82.29-1.49.77-2.02-.08-.19-.34-.96.07-2 0 0 .63-.2 2.06.77A7.14 7.14 0 0 1 8 4.77c.64 0 1.28.09 1.88.26 1.43-.97 2.06-.77 2.06-.77.41 1.04.15 1.81.07 2 .48.53.77 1.2.77 2.02 0 2.9-1.77 3.54-3.45 3.73.29.25.54.74.54 1.49 0 1.08-.01 1.95-.01 2.22 0 .21.14.46.52.38A7.52 7.52 0 0 0 15.5 8C15.5 3.86 12.14 0.5 8 0.5Z"
+          />
+        </svg>
+        github.com/expertos-tech/simple-chess
+      </a>
+    </header>
     <main class="wrap">
       ${bodyHtml}
       <div class="footer">Generated from <code>README.md</code>.</div>
