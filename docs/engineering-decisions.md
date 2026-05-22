@@ -82,7 +82,7 @@ Decision:
 The game is now officially a 5x7 chess variant.
 
 Rationale:
-The previous 5x8 setup with two rooks per side made rooks too dominant on a compact board. The 5x7 setup with one rook, one bishop, two knights and the king centered between the knights creates a more tactical and balanced game.
+The previous 5x8 setup with two rooks per side made rooks too dominant on a compact board. The 5x7 setup with one rook, one bishop, two knights and the king centered between the knights creates a more tactical and balanced game (originally implemented for Simple Chess 5x7).
 
 Consequences:
 
@@ -95,7 +95,7 @@ Consequences:
 ## 008 - Browser-first 5x7 game
 
 Decision:
-The project is now officially a browser-first 5x7 chess variant. The terminal gameplay mode was removed.
+The project is now officially a browser-first 5x7 chess variant (originally implemented for Simple Chess 5x7). The terminal gameplay mode was removed.
 
 Rationale:
 The browser UI is the product experience. The previous CLI mode was useful during early engine validation, but keeping it as a public mode created duplicated documentation, extra scripts, and unnecessary maintenance. The engine remains fully testable through automated tests.
@@ -106,3 +106,18 @@ Consequences:
 - `src/cli.js` and `src/display.js` were removed.
 - The official architecture is Browser UI -> WebSocket server -> game engine.
 - The official board size is 5x7.
+
+## 009 - Project renamed to Mini Chess 5x7
+
+Decision:
+The project was renamed from Simple Chess 5x7 to Mini Chess 5x7.
+
+Rationale:
+Mini Chess 5x7 better communicates that this is a compact chess variant, not only a simplified implementation. The `5x7` suffix keeps the name precise and avoids ambiguity with other mini chess variants.
+
+Consequences:
+
+- Repository name is now `mini-chess-5x7`.
+- Package name is now `mini-chess-5x7`.
+- Public title is now `Mini Chess 5x7`.
+- Documentation, GitHub Pages links, and clone commands must use the new name.

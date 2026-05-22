@@ -1,7 +1,7 @@
 {
-  "name": "simple-chess",
-  "version": "1.0.0",
-  "description": "5x7 chess variant - Browser-first game with minimal AI",
+  "name": "mini-chess-5x7",
+  "version": "0.4.0",
+  "description": "A compact browser-based chess variant powered by a small Node.js game engine.",
   "main": "src/server.js",
   "scripts": {
     "start": "node src/server.js",
@@ -15,6 +15,23 @@
     "format:check": "prettier . --check",
     "check": "npm run lint && npm test && npm run format:check"
   },
+  "homepage": "https://expertos-tech.github.io/mini-chess-5x7/",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/expertos-tech/mini-chess-5x7.git"
+  },
+  "bugs": {
+    "url": "https://github.com/expertos-tech/mini-chess-5x7/issues"
+  },
+  "keywords": [
+    "mini-chess",
+    "chess",
+    "chess-variant",
+    "browser-game",
+    "nodejs",
+    "websocket",
+    "vue"
+  ],
   "engines": {
     "node": ">=24"
   },

@@ -1,19 +1,30 @@
-# ♟️ Simple Chess 5x7
+# ♟️ Mini Chess 5x7
 
-Simple Chess 5x7 is a compact browser-based chess variant powered by a small Node.js game engine. Perfect for quick tactical training or learning the basics without the complexity of a full board.
+Mini Chess 5x7 is a compact browser-based chess variant powered by a small Node.js game engine. Perfect for quick tactical training or learning the basics without the complexity of a full board.
 
 ---
 
 ## Quick Start
 
+### Step 1
+
+Clone the repository and install dependencies:
+
 ```bash
-git clone https://github.com/expertos-tech/simple-chess.git
-cd simple-chess
+git clone https://github.com/expertos-tech/mini-chess-5x7.git
+cd mini-chess-5x7
 npm install
+```
+
+### Step 2
+
+Run:
+
+```bash
 npm start
 ```
 
-Open: [http://localhost:3000/](http://localhost:3000/)
+Open [http://localhost:3000/](http://localhost:3000/)
 
 ---
 

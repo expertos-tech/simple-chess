@@ -3,7 +3,7 @@
 const fs = require('node:fs');
 const path = require('node:path');
 
-const DOCS_GITHUB_BASE = 'https://github.com/expertos-tech/simple-chess/blob/main/';
+const DOCS_GITHUB_BASE = 'https://github.com/expertos-tech/mini-chess-5x7/blob/main/';
 
 function escapeHtml(s) {
   return String(s)
@@ -174,7 +174,7 @@ function buildHtml({ title, bodyHtml }) {
     <header class="topbar">
       <a
         class="github-link"
-        href="https://github.com/expertos-tech/simple-chess"
+        href="https://github.com/expertos-tech/mini-chess-5x7"
         target="_blank"
         rel="noopener"
       >
@@ -183,7 +183,7 @@ function buildHtml({ title, bodyHtml }) {
             d="M8 0.5C3.86 0.5 0.5 3.86 0.5 8c0 3.32 2.17 6.13 5.17 7.12.38.07.52-.17.52-.38 0-.19-.01-.82-.01-1.48-1.89.35-2.38-.46-2.53-.88-.09-.22-.48-.88-.82-1.06-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.53.28-.87.5-1.07-1.68-.19-3.44-.84-3.44-3.73 0-.82.29-1.49.77-2.02-.08-.19-.34-.96.07-2 0 0 .63-.2 2.06.77A7.14 7.14 0 0 1 8 4.77c.64 0 1.28.09 1.88.26 1.43-.97 2.06-.77 2.06-.77.41 1.04.15 1.81.07 2 .48.53.77 1.2.77 2.02 0 2.9-1.77 3.54-3.45 3.73.29.25.54.74.54 1.49 0 1.08-.01 1.95-.01 2.22 0 .21.14.46.52.38A7.52 7.52 0 0 0 15.5 8C15.5 3.86 12.14 0.5 8 0.5Z"
           />
         </svg>
-        github.com/expertos-tech/simple-chess
+        github.com/expertos-tech/mini-chess-5x7
       </a>
     </header>
     <main class="wrap">
@@ -232,7 +232,7 @@ async function main() {
   );
 
   const htmlBody = marked.parse(readmeMd);
-  const html = buildHtml({ title: 'Simple Chess 5x7', bodyHtml: htmlBody });
+  const html = buildHtml({ title: 'Mini Chess 5x7', bodyHtml: htmlBody });
 
   fs.mkdirSync(path.dirname(outPath), { recursive: true });
   fs.writeFileSync(outPath, html, 'utf8');

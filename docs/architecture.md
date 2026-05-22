@@ -2,7 +2,7 @@
 
 ## Overview
 
-Simple Chess 5x7 is a browser-first application. The architecture is composed of a Vue 3 frontend that communicates via WebSockets with a Node.js backend.
+Mini Chess 5x7 is a browser-first application. The architecture is composed of a Vue 3 frontend that communicates via WebSockets with a Node.js backend.
 
 ## Flow
 

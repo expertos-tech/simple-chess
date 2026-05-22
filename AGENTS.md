@@ -1,6 +1,6 @@
-# Simple Chess AGENTS
+# Mini Chess 5x7 AGENTS
 
-This repository is a browser-first Node.js chess variant. The CLI gameplay mode was removed. Do not reintroduce terminal gameplay unless explicitly requested. Use tests and the browser server as validation paths.
+This repository is a browser-first Node.js chess variant. The CLI gameplay mode was removed. Do not reintroduce terminal gameplay unless explicitly requested. Use tests and the browser server as validation paths. Use `Mini Chess 5x7` as the public product name and `mini-chess-5x7` as the repository/package name. Do not reintroduce `Simple Chess` as the current project name.
 
 ---
 
@@ -72,7 +72,7 @@ Antes de alterar regras ou a arquitetura, leia:
 
 ---
 
-## 5. Comandos Frequentes
+## 7. Comandos Frequentes
 
 | Comando          | Descrição                         |
 | ---------------- | --------------------------------- |
@@ -84,7 +84,7 @@ Antes de alterar regras ou a arquitetura, leia:
 
 ---
 
-## 6. Regras de Comunicação
+## 8. Regras de Comunicação
 
 - Responda em Português por padrão.
 - Use linguagem direta e técnica.
