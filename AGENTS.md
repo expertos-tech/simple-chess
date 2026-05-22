@@ -1,114 +1,137 @@
-# Mini Chess 5x7 AGENTS
+# Mini Chess 5x7 — Guia para Agentes
 
-This repository is a browser-first Node.js chess variant. The CLI gameplay mode was removed. Do not reintroduce terminal gameplay unless explicitly requested. Use tests and the browser server as validation paths. Use `Mini Chess 5x7` as the public product name and `mini-chess-5x7` as the repository/package name. Do not reintroduce `Simple Chess` as the current project name.
+Este repositório é uma variante de xadrez 5x7 **browser-first** em Node.js. O modo terminal/CLI foi removido e não deve ser reintroduzido sem solicitação explícita. Use os testes (`npm test`) e o servidor browser (`npm start`) como caminhos oficiais de validação.
+
+Nome público do produto: `Mini Chess 5x7`. Nome do pacote/repositório: `mini-chess-5x7`. Não reintroduza o nome antigo `Simple Chess`.
 
 ---
 
 ## 1. Contexto
 
-Variante de xadrez 5x7 rodando em Node.js com UI em Vue (browser).
+Variante compacta de xadrez 5×7 (5 colunas, 7 linhas) rodando como servidor Node.js com interface Vue 3 no navegador.
 
-## 2. Tecnologias Principais
+## 2. Tecnologias principais
 
-- **Backend**: Node.js 24+, `ws` (WebSockets).
-- **Frontend**: Vue 3 (via CDN em `public/index.html`).
-- **Lógica de Jogo**: Geração de movimentos e IA Minimax (`src/`).
-
----
-
-## 3. Estrutura de Arquivos
-
-- `src/board.js`: Estado do tabuleiro (matriz 7x5).
-- `src/moves.js`: Regras de movimento e detecção de xeque.
-- `src/game.js`: Parser de coordenadas e status do jogo.
-- `src/ai.js`: Inteligência artificial.
-- `src/server.js`: Servidor WebSocket (entrypoint).
-- `src/constants.js`: Constantes globais (ROWS, COLS, etc).
-- `public/index.html`: UI do navegador.
+- **Backend**: Node.js 24+, biblioteca `ws` para WebSockets.
+- **Frontend**: Vue 3 carregado via CDN em `public/index.html`.
+- **Lógica de jogo**: geração de movimentos pura e IA Minimax/Alpha-Beta em `src/`.
 
 ---
 
-## 4. Commit Message Convention
+## 3. Estrutura de arquivos
 
-This project follows a semantic and functional commit pattern. Commits must be written in **English**.
-
-- **Structure**: `type: short functional title` followed by a list of detailed bullets.
-- **Tone**: Focus on "what" and "why" from a functional perspective rather than just listing files.
-- **Types**:
-  - `feat`: New features or rules.
-  - `fix`: Bug fixes.
-  - `docs`: Documentation updates.
-  - `refactor`: Code changes that neither fix a bug nor add a feature.
-  - `test`: Adding or updating tests.
-
-**Example:**
-
-```txt
-feat: update initial board setup
-- Change pieces to B-N-K-N-R formation
-- Center the king between two knights
-- Update rules documentation to match new layout
+```
+src/
+  constants.js   ROWS, COLS, FILES
+  board.js       estado do tabuleiro (matriz 7x5) e operações puras
+  moves.js       movimentos pseudo-legais, legais e detecção de xeque
+  game.js        parser de coordenadas e status (ongoing/mate/stalemate)
+  pieces.js      tabelas de valor (display e engine)
+  pst.js         piece-square tables para a avaliação da IA
+  ai.js          minimax + alpha-beta + ordenação de jogadas
+  protocol.js    constantes e validação do protocolo WebSocket
+  session.js     classe Match (estado de uma partida)
+  server.js      servidor HTTP + WebSocket (entrypoint)
+public/
+  index.html     UI Vue 3 single-page
+test/
+  *.test.js      testes com node:test
+docs/
+  *.md           documentação técnica
 ```
 
 ---
 
-## 5. Functional Guidelines
+## 4. Convenção de commits
 
-- **Product First**: When describing changes, prioritize how they affect the game experience (e.g., "The game now starts faster" instead of "Optimized loop in server.js").
-- **Language**: Use English for commits, changelogs, and internal documentation (like this section).
-- **Simplicity**: Avoid over-engineering. Stick to the requested 5x7 browser-first scope.
+Mensagens em **inglês**, com prefixo semântico:
 
----
+- `feat`: nova funcionalidade.
+- `fix`: correção de bug.
+- `docs`: documentação.
+- `refactor`: mudança sem alteração de comportamento.
+- `test`: testes.
+- `chore`: ferramental, scripts, configuração.
 
-## 6. Fluxo de Desenvolvimento
+Estrutura: `type: short functional title`, seguido (quando útil) por bullets descrevendo o impacto funcional.
 
-Antes de alterar regras ou a arquitetura, leia:
+Exemplo:
 
-- `src/constants.js`
-- `src/board.js`
-- `src/moves.js`
-- `src/game.js`
-- `test/` (sempre rode `npm test`)
-
----
-
-## 7. Comandos Frequentes
-
-| Comando          | Descrição                         |
-| ---------------- | --------------------------------- |
-| `npm start`      | Inicia o servidor web.            |
-| `npm test`       | Executa os testes unitários.      |
-| `npm run lint`   | Roda o ESLint.                    |
-| `npm run format` | Roda o Prettier.                  |
-| `npm run check`  | Roda lint, testes e format:check. |
+```txt
+feat: expose AI difficulty via the WebSocket protocol
+- Add `easy`, `medium`, `hard` levels mapped to depths 1/2/3
+- Add tiny score noise on easy/medium so games vary
+- Document the new `config` message in docs/websocket-protocol.md
+```
 
 ---
 
-## 8. Regras de Comunicação
+## 5. Diretrizes funcionais
 
-- Responda em Português por padrão.
+- **Foco no produto**: descreva mudanças pela experiência ("o jogo começa mais rápido"), não pelos arquivos.
+- **Idioma**: inglês para commits e changelogs; português para documentação interna (este arquivo, comentários voltados a contribuidores).
+- **Simplicidade**: evite overengineering. O escopo é uma variante 5×7 didática, browser-first.
+- **Sem CLI**: não recrie `src/cli.js` ou `src/display.js`.
+- **Sem framework pesado**, sem TypeScript, sem banco de dados, sem multiplayer real — veja `docs/roadmap.md` para a lista oficial de não-objetivos.
+
+---
+
+## 6. Fluxo de desenvolvimento
+
+Antes de alterar regras ou arquitetura, leia, na ordem:
+
+1. `src/constants.js`
+2. `src/board.js` e `src/moves.js`
+3. `src/game.js`
+4. `src/session.js` e `src/protocol.js`
+5. `src/ai.js`
+6. `test/` (sempre execute `npm test`)
+7. `docs/architecture.md` e `docs/game-engine.md`
+
+Para mudanças na IA, leia também `docs/ai.md`. Para mudanças no protocolo WebSocket, leia `docs/websocket-protocol.md` e atualize-o no mesmo PR.
+
+---
+
+## 7. Comandos frequentes
+
+| Comando             | Descrição                                       |
+| ------------------- | ----------------------------------------------- |
+| `npm start`         | Inicia o servidor browser em http://localhost:3000 |
+| `npm run dev`       | Mesmo que `start` com `node --watch` (auto-reload) |
+| `npm test`          | Executa os testes unitários (`node --test`)     |
+| `npm run lint`      | Roda o ESLint                                   |
+| `npm run format`    | Aplica o Prettier                               |
+| `npm run check`     | Lint + testes + format:check                    |
+
+---
+
+## 8. Regras de comunicação
+
+- Responda em **português** por padrão.
 - Use linguagem direta e técnica.
-- Referencie arquivos pelo path completo (ex: `src/server.js`).
+- Referencie arquivos pelo caminho completo (ex: `src/server.js`).
+- Cite linhas (`src/ai.js:42`) quando for útil.
 
 ---
 
-## Project Overview
+## 9. Visão geral do projeto
 
-Browser-first 5x7 chess variant.
+**Tabuleiro**: 5 colunas (`a-e`) × 7 linhas (`1-7`). Sem roque. Sem en passant. Peões andam uma casa por vez. Promoção para torre.
 
-**Board:** 5 columns (a-e) x 7 rows (1-7). No castling. No en passant. Pawns move one square. Promotion to rook.
+**Posição inicial**:
 
-**Initial position:**
+- Brancas (linha 1): Bispo (a1), Cavalo (b1), Rei (c1), Cavalo (d1), Torre (e1).
+- Negras (linha 7): Torre (a7), Cavalo (b7), Rei (c7), Cavalo (d7), Bispo (e7).
+- Peões: linha 2 (brancas) e linha 6 (negras).
 
-- White (row 1): Bishop(a1) Knight(b1) King(c1) Knight(d1) Rook(e1)
-- Black (row 7): Rook(a7) Knight(b7) King(c7) Knight(d7) Bishop(e7)
-- Pawns: row 2 (White) / row 6 (Black)
+**Arquitetura**:
 
-**Architecture:**
+```
+Browser UI → WebSocket server → Match (session) → game engine → AI / move generation
+```
 
-- Browser UI -> WebSocket server -> game engine -> AI / move generation
-- `src/server.js` - HTTP/WebSocket server
-- `src/board.js` - 7x5 matrix state
-- `src/moves.js` - legal move generation
-- `src/ai.js` - Minimax Alpha-Beta pruning
-- `src/game.js` - turn management and status detection
+- `src/server.js` — servidor HTTP + WebSocket (apenas transporte).
+- `src/session.js` — classe `Match`, estado de uma partida.
+- `src/protocol.js` — constantes e validação de mensagens WebSocket.
+- `src/board.js`, `src/moves.js`, `src/game.js` — engine pura.
+- `src/ai.js`, `src/pst.js`, `src/pieces.js` — IA.

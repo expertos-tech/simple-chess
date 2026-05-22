@@ -121,3 +121,104 @@ Consequences:
 - Package name is now `mini-chess-5x7`.
 - Public title is now `Mini Chess 5x7`.
 - Documentation, GitHub Pages links, and clone commands must use the new name.
+
+## 010 - Match class owns per-game state
+
+Decision:
+
+- Per-game state lives in `src/session.js` inside a `Match` class.
+- `src/server.js` is reduced to transport: HTTP, WebSocket upgrade, message dispatch.
+
+Rationale:
+
+- The previous `server.js` accumulated board, turn flag, captures, history, AI configuration, and the per-message dispatcher in a single ~300-line file.
+- Separating session state from transport makes the engine pipeline reusable (tests, future scripts, benchmarks) without coupling to `ws`.
+
+Consequences:
+
+- The engine + AI + session form a pure pipeline driven by `Match.*` calls.
+- Server-side validation and Origin checks are the only concerns left in `server.js`.
+
+## 011 - WebSocket protocol extracted into its own module
+
+Decision:
+
+- All WebSocket message types, validators, error codes, and the difficulty table live in `src/protocol.js`.
+- Outbound messages are constructed via `makeStateMessage`, `makeValidMovesMessage`, `makeErrorMessage`.
+- A `PROTOCOL_VERSION` integer is exported and included in every `state` message.
+
+Rationale:
+
+- The protocol used to be stringly typed and validated inline. Moving it into a module gives a single source of truth that both the server and the documentation point at.
+- A protocol version lets future clients fail fast if the server changes incompatibly.
+
+Consequences:
+
+- Adding or renaming a message type is a one-file change plus a doc update.
+- `docs/websocket-protocol.md` is generated from the same vocabulary the code uses.
+
+## 012 - Origin allow-list on WebSocket upgrade
+
+Decision:
+
+- The WebSocket server rejects upgrade requests whose `Origin` is not in `DEFAULT_ALLOWED_ORIGINS` (localhost variants and `https://expertos-tech.github.io`).
+- The allow-list is overridable via the `ALLOWED_ORIGINS` environment variable.
+
+Rationale:
+
+- The previous server accepted any Origin, which made it possible for arbitrary web pages to connect to a local instance via cross-site WebSocket hijacking.
+- A small allow-list is sufficient for a single-player local game and costs almost nothing.
+
+Consequences:
+
+- Hosting the UI on a new domain requires updating `ALLOWED_ORIGINS` or extending the default list.
+- Non-browser clients (curl, integration tests) that do not send an `Origin` are still accepted, which matches the threat model.
+
+## 013 - AI evaluation uses piece-square tables and MVV-LVA ordering
+
+Decision:
+
+- The evaluator combines material (`AI_PIECE_VALUES`), piece-square tables (`src/pst.js`), and pseudo-mobility (`pseudoMoves`).
+- The search orders moves with MVV-LVA before recursing.
+
+Rationale:
+
+- Material-only evaluation made the AI ignore positional considerations entirely (e.g. central knights, advanced pawns).
+- Without move ordering, alpha-beta pruning was nearly worthless because random move order rarely produced cutoffs.
+
+Consequences:
+
+- The AI is noticeably stronger at hard, without raising the search depth.
+- Adding new piece types in the future requires both an entry in `AI_PIECE_VALUES` and a PST.
+
+## 014 - Configurable AI difficulty (easy / medium / hard)
+
+Decision:
+
+- Three levels are exposed through the protocol: `easy` (depth 1, noise 5), `medium` (depth 2, noise 2), `hard` (depth 3, noise 0).
+- The level can be set per connection via `?level=` or mid-game via a `config` message.
+
+Rationale:
+
+- A single, fixed AI strength frustrates beginners and bores stronger players.
+- Adjusting depth alone is too coarse; small score noise on easy/medium adds variety without making the AI obviously bad.
+
+Consequences:
+
+- Easy/medium are non-deterministic by design; tests for AI behavior pass `{ noise: 0 }` explicitly.
+
+## 015 - AI evaluator uses pseudo-mobility, not legal mobility
+
+Decision:
+
+- The mobility term in `evaluate` calls `pseudoMoves(board, whiteTurn)` instead of `getLegalMoves`.
+
+Rationale:
+
+- `getLegalMoves` clones the board for every candidate move to filter out moves that leave the king in check. Calling it from inside `evaluate` made every leaf evaluation O(b · clone), which dominated the search cost.
+- Pseudo-mobility is an approximation but is cheap and self-cancelling across symmetric positions.
+
+Consequences:
+
+- The search is several times faster at depth 3.
+- The eval can be slightly noisy when one side has many pseudo-legal but illegal moves (e.g. pinned pieces). The effect is small enough to be acceptable for a didactic engine.

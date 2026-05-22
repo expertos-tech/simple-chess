@@ -1,8 +1,17 @@
-const EMPTY = '.';
-const { ROWS, COLS } = require('./constants');
+const { ROWS, COLS, FILES } = require('./constants');
 
-// Uppercase = white, lowercase = black
-// K/k=King, R/r=Rook, B/b=Bishop, N/n=Knight, P/p=Pawn
+const EMPTY = '.';
+
+// Board representation
+// ====================
+// The board is a ROWS x COLS array of single-character strings.
+// Row 0 is rank 7 (Black's back rank); row ROWS-1 is rank 1 (White's back rank).
+// Uppercase pieces are White, lowercase pieces are Black.
+//   K/k = King, R/r = Rook, B/b = Bishop, N/n = Knight, P/p = Pawn
+// '.' represents an empty square.
+//
+// @typedef {string[][]} Board
+// @typedef {{ fromRow: number, fromCol: number, toRow: number, toCol: number, promotion?: string }} Move
 
 const INITIAL_BOARD = [
   ['r', 'n', 'k', 'n', 'b'], // row 0 = rank 7 (black back rank)
@@ -39,9 +48,8 @@ function applyMove(board, move) {
 }
 
 function moveToStr(move) {
-  const cols = 'abcde';
-  const from = `${cols[move.fromCol]}${ROWS - move.fromRow}`;
-  const to = `${cols[move.toCol]}${ROWS - move.toRow}`;
+  const from = `${FILES[move.fromCol]}${ROWS - move.fromRow}`;
+  const to = `${FILES[move.toCol]}${ROWS - move.toRow}`;
   return `${from}${to}${move.promotion || ''}`;
 }
 

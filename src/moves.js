@@ -1,5 +1,47 @@
+// Move generation and check detection for Mini Chess 5x7.
+//
+// The engine generates pseudo-legal moves first (`pseudoMoves`) and then
+// filters them through a legality check (`getLegalMoves`) that drops any
+// move that would leave the moving side's king in check.
+
 const { EMPTY, isWhite, isBlack, cloneBoard, applyMove } = require('./board');
 const { ROWS, COLS } = require('./constants');
+
+const ROOK_DIRS = Object.freeze([
+  [0, 1],
+  [0, -1],
+  [1, 0],
+  [-1, 0],
+]);
+
+const BISHOP_DIRS = Object.freeze([
+  [1, 1],
+  [1, -1],
+  [-1, 1],
+  [-1, -1],
+]);
+
+const KNIGHT_DIRS = Object.freeze([
+  [-2, -1],
+  [-2, 1],
+  [-1, -2],
+  [-1, 2],
+  [1, -2],
+  [1, 2],
+  [2, -1],
+  [2, 1],
+]);
+
+const KING_DIRS = Object.freeze([
+  [-1, -1],
+  [-1, 0],
+  [-1, 1],
+  [0, -1],
+  [0, 1],
+  [1, -1],
+  [1, 0],
+  [1, 1],
+]);
 
 function inBounds(row, col) {
   return row >= 0 && row < ROWS && col >= 0 && col < COLS;
@@ -23,7 +65,6 @@ function addPawnMoves(board, row, col, whiteTurn, moves) {
 
   if (!inBounds(nr, col)) return;
 
-  // One step forward
   if (board[nr][col] === EMPTY) {
     if (nr === promRow) {
       promos.forEach((p) =>
@@ -34,7 +75,6 @@ function addPawnMoves(board, row, col, whiteTurn, moves) {
     }
   }
 
-  // Diagonal captures
   for (const dc of [-1, 1]) {
     const nc = col + dc;
     if (!inBounds(nr, nc)) continue;
@@ -69,34 +109,12 @@ function addSliding(board, row, col, whiteTurn, moves, dirs) {
   }
 }
 
-function addKnightMoves(board, row, col, whiteTurn, moves) {
-  for (const [dr, dc] of [
-    [-2, -1],
-    [-2, 1],
-    [-1, -2],
-    [-1, 2],
-    [1, -2],
-    [1, 2],
-    [2, -1],
-    [2, 1],
-  ]) {
+function addStepping(board, row, col, whiteTurn, moves, dirs) {
+  for (const [dr, dc] of dirs) {
     const nr = row + dr;
     const nc = col + dc;
     if (inBounds(nr, nc) && !isOwn(board, nr, nc, whiteTurn)) {
       moves.push({ fromRow: row, fromCol: col, toRow: nr, toCol: nc });
-    }
-  }
-}
-
-function addKingMoves(board, row, col, whiteTurn, moves) {
-  for (let dr = -1; dr <= 1; dr++) {
-    for (let dc = -1; dc <= 1; dc++) {
-      if (dr === 0 && dc === 0) continue;
-      const nr = row + dr;
-      const nc = col + dc;
-      if (inBounds(nr, nc) && !isOwn(board, nr, nc, whiteTurn)) {
-        moves.push({ fromRow: row, fromCol: col, toRow: nr, toCol: nc });
-      }
     }
   }
 }
@@ -112,41 +130,34 @@ function pseudoMoves(board, whiteTurn) {
 
       const t = piece.toLowerCase();
       if (t === 'p') addPawnMoves(board, row, col, whiteTurn, moves);
-      else if (t === 'r')
-        addSliding(board, row, col, whiteTurn, moves, [
-          [0, 1],
-          [0, -1],
-          [1, 0],
-          [-1, 0],
-        ]);
-      else if (t === 'b')
-        addSliding(board, row, col, whiteTurn, moves, [
-          [1, 1],
-          [1, -1],
-          [-1, 1],
-          [-1, -1],
-        ]);
-      else if (t === 'n') addKnightMoves(board, row, col, whiteTurn, moves);
-      else if (t === 'k') addKingMoves(board, row, col, whiteTurn, moves);
+      else if (t === 'r') addSliding(board, row, col, whiteTurn, moves, ROOK_DIRS);
+      else if (t === 'b') addSliding(board, row, col, whiteTurn, moves, BISHOP_DIRS);
+      else if (t === 'n') addStepping(board, row, col, whiteTurn, moves, KNIGHT_DIRS);
+      else if (t === 'k') addStepping(board, row, col, whiteTurn, moves, KING_DIRS);
     }
   }
   return moves;
 }
 
-function isInCheck(board, whiteTurn) {
+// True if (row, col) is attacked by any piece of the given colour.
+function isSquareAttacked(board, row, col, byWhite) {
+  return pseudoMoves(board, byWhite).some((m) => m.toRow === row && m.toCol === col);
+}
+
+function findKing(board, whiteTurn) {
   const king = whiteTurn ? 'K' : 'k';
-  let kr = -1,
-    kc = -1;
   for (let r = 0; r < ROWS; r++) {
     for (let c = 0; c < COLS; c++) {
-      if (board[r][c] === king) {
-        kr = r;
-        kc = c;
-      }
+      if (board[r][c] === king) return { row: r, col: c };
     }
   }
-  if (kr === -1) return true;
-  return pseudoMoves(board, !whiteTurn).some((m) => m.toRow === kr && m.toCol === kc);
+  return null;
+}
+
+function isInCheck(board, whiteTurn) {
+  const k = findKing(board, whiteTurn);
+  if (!k) return true; // king gone — treat as in check (defensive guard)
+  return isSquareAttacked(board, k.row, k.col, !whiteTurn);
 }
 
 function getLegalMoves(board, whiteTurn) {
@@ -157,4 +168,10 @@ function getLegalMoves(board, whiteTurn) {
   });
 }
 
-module.exports = { getLegalMoves, isInCheck };
+module.exports = {
+  pseudoMoves,
+  getLegalMoves,
+  isInCheck,
+  isSquareAttacked,
+  findKing,
+};

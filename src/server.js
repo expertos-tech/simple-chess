@@ -1,41 +1,48 @@
-const http = require('http');
-const fs = require('fs');
-const path = require('path');
+// HTTP + WebSocket entry point for Mini Chess 5x7.
+//
+// Responsibilities are kept narrow:
+//   - serve `public/index.html` over HTTP,
+//   - upgrade WebSocket connections,
+//   - validate inbound messages (`./protocol`),
+//   - delegate game logic to a `Match` instance (`./session`).
+
+const http = require('node:http');
+const fs = require('node:fs');
+const path = require('node:path');
 const { WebSocketServer } = require('ws');
-const { createBoard, applyMove, moveToStr } = require('./board');
-const { getLegalMoves, isInCheck } = require('./moves');
-const { getAiMove } = require('./ai');
-const { getStatus } = require('./game');
-const { PIECE_VALUES } = require('./pieces');
+
+const {
+  INBOUND,
+  OUTBOUND,
+  ERROR_CODES,
+  validateInbound,
+  makeStateMessage,
+  makeValidMovesMessage,
+  makeErrorMessage,
+} = require('./protocol');
+const { Match } = require('./session');
+const { STATUS } = require('./protocol');
 
 const DEFAULT_PORT = 3000;
+const DEFAULT_ALLOWED_ORIGINS = [
+  'http://localhost',
+  'http://127.0.0.1',
+  'https://expertos-tech.github.io',
+];
 
-function captureScore(pieces) {
-  return pieces.reduce((sum, p) => sum + (PIECE_VALUES[p.toLowerCase()] || 0), 0);
+function isOriginAllowed(origin, allowList) {
+  if (!origin) return true; // non-browser clients (e.g. tests, curl)
+  return allowList.some((prefix) => origin === prefix || origin.startsWith(`${prefix}:`));
 }
 
-function makeState(
-  board,
-  whiteTurn,
-  status,
-  lastMove,
-  capturedByWhite,
-  capturedByBlack,
-  moveHistory
-) {
-  return JSON.stringify({
-    type: 'state',
-    board,
-    whiteTurn,
-    status,
-    lastMove,
-    inCheck: status === 'ongoing' && isInCheck(board, whiteTurn),
-    capturedByWhite,
-    capturedByBlack,
-    moveHistory,
-    scoreWhite: captureScore(capturedByWhite),
-    scoreBlack: captureScore(capturedByBlack),
-  });
+function resolveLevel(searchParams) {
+  const raw = (searchParams.get('level') || '').toLowerCase();
+  return ['easy', 'medium', 'hard'].includes(raw) ? raw : 'hard';
+}
+
+function resolveSide(searchParams) {
+  const side = (searchParams.get('side') || 'white').toLowerCase();
+  return side === 'black' ? 'black' : 'white';
 }
 
 function start(opts = {}) {
@@ -45,6 +52,10 @@ function start(opts = {}) {
     : Number.isFinite(portFromEnv)
       ? portFromEnv
       : DEFAULT_PORT;
+  const allowedOrigins = Array.isArray(opts.allowedOrigins)
+    ? opts.allowedOrigins
+    : DEFAULT_ALLOWED_ORIGINS;
+
   const server = http.createServer((req, res) => {
     if (req.url === '/' || req.url === '/index.html') {
       const filePath = path.join(__dirname, '..', 'public', 'index.html');
@@ -63,126 +74,112 @@ function start(opts = {}) {
     }
   });
 
-  const wss = new WebSocketServer({ server });
+  const wss = new WebSocketServer({
+    server,
+    verifyClient: (info, done) => {
+      const origin = info.origin || info.req.headers.origin;
+      if (!isOriginAllowed(origin, allowedOrigins)) {
+        done(false, 403, 'Forbidden origin');
+        return;
+      }
+      done(true);
+    },
+  });
 
   wss.on('connection', (ws, request) => {
     const url = new URL(request.url || '/', 'http://localhost');
-    const side = (url.searchParams.get('side') || 'white').toLowerCase();
-    const playerIsWhite = side !== 'black';
+    const side = resolveSide(url.searchParams);
+    const level = resolveLevel(url.searchParams);
+    const match = new Match({ playerIsWhite: side === 'white', level });
 
-    let board = createBoard();
-    let whiteTurn = true;
-    let lastMove = null;
-    let capturedByWhite = []; // black pieces taken by white
-    let capturedByBlack = []; // white pieces taken by black
-    let moveHistory = []; // [{ move: 'a2a3', isWhite: true, num: 1 }, ...]
-    let moveCount = 1;
-
-    const playerToMove = () => (playerIsWhite ? whiteTurn : !whiteTurn);
-
-    const sendState = (statusOverride = null) => {
-      const status = statusOverride || getStatus(board, whiteTurn);
-      ws.send(
-        makeState(board, whiteTurn, status, lastMove, capturedByWhite, capturedByBlack, moveHistory)
-      );
+    const send = (payload) => {
+      if (ws.readyState === ws.OPEN) ws.send(payload);
     };
-
-    const applyCapture = (capturedPiece, moverIsWhite) => {
-      if (capturedPiece === '.') return;
-      if (moverIsWhite) capturedByWhite.push(capturedPiece);
-      else capturedByBlack.push(capturedPiece);
-    };
+    const sendState = () => send(makeStateMessage(match.snapshot()));
+    const sendError = (code, message) => send(makeErrorMessage(code, message));
 
     const maybePlayAi = () => {
-      if (getStatus(board, whiteTurn) !== 'ongoing') return;
-      if (playerToMove()) return;
-
+      if (match.status() !== STATUS.ONGOING) return;
+      if (match.playerToMove()) return;
       setImmediate(() => {
-        const aiMove = getAiMove(board, whiteTurn);
-        if (!aiMove) return;
-
-        applyCapture(board[aiMove.toRow][aiMove.toCol], whiteTurn);
-        applyMove(board, aiMove);
-        lastMove = aiMove;
-
-        moveHistory.push({ move: moveToStr(aiMove), isWhite: whiteTurn, num: moveCount });
-        if (!whiteTurn) moveCount++;
-
-        whiteTurn = !whiteTurn;
-        sendState();
+        const move = match.applyAiMove();
+        if (move) sendState();
       });
     };
 
     sendState();
-    if (!playerIsWhite) maybePlayAi();
+    if (!match.playerToMove()) maybePlayAi();
 
     ws.on('message', (raw) => {
-      let msg;
+      let parsed;
       try {
-        msg = JSON.parse(raw);
+        parsed = JSON.parse(raw);
       } catch {
+        sendError(ERROR_CODES.BAD_JSON, 'Malformed JSON');
         return;
       }
 
-      if (msg.type === 'getMoves') {
-        const { row, col } = msg;
-        if (!playerToMove()) return;
-        const moves = getLegalMoves(board, whiteTurn)
-          .filter((m) => m.fromRow === row && m.fromCol === col)
-          .map((m) => ({ toRow: m.toRow, toCol: m.toCol }));
-        ws.send(JSON.stringify({ type: 'validMoves', fromRow: row, fromCol: col, moves }));
-      } else if (msg.type === 'move') {
-        if (!playerToMove()) return;
-        const { fromRow, fromCol, toRow, toCol } = msg;
-        const match = getLegalMoves(board, whiteTurn).find(
-          (m) =>
-            m.fromRow === fromRow && m.fromCol === fromCol && m.toRow === toRow && m.toCol === toCol
-        );
-        if (!match) {
-          ws.send(JSON.stringify({ type: 'error', message: 'Illegal move' }));
+      const validation = validateInbound(parsed);
+      if (!validation.ok) {
+        sendError(validation.code);
+        return;
+      }
+      const msg = validation.msg;
+
+      if (msg.type === INBOUND.GET_MOVES) {
+        if (!match.playerToMove()) {
+          send(makeValidMovesMessage(msg.row, msg.col, []));
           return;
         }
+        send(makeValidMovesMessage(msg.row, msg.col, match.legalMovesFrom(msg.row, msg.col)));
+        return;
+      }
 
-        applyCapture(board[match.toRow][match.toCol], whiteTurn);
-        applyMove(board, match);
-        lastMove = match;
-        moveHistory.push({ move: moveToStr(match), isWhite: whiteTurn, num: moveCount });
-        if (!whiteTurn) moveCount++;
-
-        whiteTurn = !whiteTurn;
-
-        const statusAfterPlayer = getStatus(board, whiteTurn);
-        sendState(statusAfterPlayer);
-        if (statusAfterPlayer !== 'ongoing') return;
-
+      if (msg.type === INBOUND.MOVE) {
+        if (!match.playerToMove()) {
+          sendError(ERROR_CODES.NOT_YOUR_TURN);
+          return;
+        }
+        const ok = match.applyPlayerMove(msg.fromRow, msg.fromCol, msg.toRow, msg.toCol);
+        if (!ok) {
+          sendError(ERROR_CODES.ILLEGAL_MOVE, 'Illegal move');
+          return;
+        }
+        sendState();
+        if (match.status() !== STATUS.ONGOING) return;
         maybePlayAi();
-      } else if (msg.type === 'reset') {
-        board = createBoard();
-        whiteTurn = true;
-        lastMove = null;
-        capturedByWhite = [];
-        capturedByBlack = [];
-        moveHistory = [];
-        moveCount = 1;
-        sendState('ongoing');
-        if (!playerIsWhite) maybePlayAi();
+        return;
+      }
+
+      if (msg.type === INBOUND.RESET) {
+        match.reset();
+        sendState();
+        if (!match.playerToMove()) maybePlayAi();
+        return;
+      }
+
+      if (msg.type === INBOUND.CONFIG) {
+        if (typeof msg.level === 'string') match.setLevel(msg.level);
+        sendState();
+        return;
       }
     });
   });
 
   server.on('error', (err) => {
     if (err && err.code === 'EADDRINUSE') {
-      console.error(
-        `Port ${port} is already in use. Try another port with: PORT=3001 npm run start:browser`
-      );
+      console.error(`Port ${port} is already in use. Try another port with: PORT=3001 npm start`);
       process.exit(1);
     }
-    throw err;
+    console.error('Server error:', err);
+    process.exit(1);
   });
 
   server.listen(port, () => {
     console.log(`\nBrowser mode: http://localhost:${port}`);
   });
+
+  return { server, wss };
 }
 
 if (require.main === module) {
@@ -190,3 +187,5 @@ if (require.main === module) {
 }
 
 module.exports = { start };
+// Convenience re-exports preserved for legacy consumers / tests.
+module.exports.OUTBOUND = OUTBOUND;

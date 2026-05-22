@@ -11,8 +11,6 @@ function parseArgs(argv) {
   for (let i = 2; i < argv.length; i++) {
     const a = argv[i];
     if (a === '--out') args.out = argv[++i];
-    else if (a === '--title') i++;
-    else if (a === '--flip') continue;
     else if (a === '--help' || a === '-h') args.help = true;
     else throw new Error(`Unknown arg: ${a}`);
   }

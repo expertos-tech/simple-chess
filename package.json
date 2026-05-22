@@ -5,7 +5,7 @@
   "main": "src/server.js",
   "scripts": {
     "start": "node src/server.js",
-    "start:browser": "node src/server.js",
+    "dev": "node --watch src/server.js",
     "build:docs": "npm run build:docs:readme",
     "build:docs:board": "node scripts/build-docs-board.js",
     "build:docs:readme": "node scripts/build-docs-index.js",
