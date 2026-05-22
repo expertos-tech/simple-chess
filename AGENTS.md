@@ -26,7 +26,7 @@ src/
   board.js       estado do tabuleiro (matriz 7x5) e operações puras
   moves.js       movimentos pseudo-legais, legais e detecção de xeque
   game.js        parser de coordenadas e status (ongoing/mate/stalemate)
-  pieces.js      tabelas de valor (display e engine)
+  pieces.js      valores de peças para placar e avaliação da engine
   pst.js         piece-square tables para a avaliação da IA
   ai.js          minimax + alpha-beta + ordenação de jogadas
   protocol.js    constantes e validação do protocolo WebSocket

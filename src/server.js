@@ -29,6 +29,7 @@ const DEFAULT_ALLOWED_ORIGINS = [
   'http://127.0.0.1',
   'https://expertos-tech.github.io',
 ];
+const AI_MOVE_DELAY_MS = 350;
 
 function isOriginAllowed(origin, allowList) {
   if (!origin) return true; // non-browser clients (e.g. tests, curl)
@@ -98,13 +99,14 @@ function start(opts = {}) {
     const sendState = () => send(makeStateMessage(match.snapshot()));
     const sendError = (code, message) => send(makeErrorMessage(code, message));
 
-    const maybePlayAi = () => {
+    const maybePlayAi = (options = {}) => {
       if (match.status() !== STATUS.ONGOING) return;
       if (match.playerToMove()) return;
-      setImmediate(() => {
+      const delayMs = typeof options.delayMs === 'number' ? options.delayMs : AI_MOVE_DELAY_MS;
+      setTimeout(() => {
         const move = match.applyAiMove();
         if (move) sendState();
-      });
+      }, Math.max(0, delayMs));
     };
 
     sendState();
@@ -154,7 +156,7 @@ function start(opts = {}) {
       if (msg.type === INBOUND.RESET) {
         match.reset();
         sendState();
-        if (!match.playerToMove()) maybePlayAi();
+        if (!match.playerToMove()) maybePlayAi({ delayMs: 0 });
         return;
       }
 
@@ -176,7 +178,7 @@ function start(opts = {}) {
   });
 
   server.listen(port, () => {
-    console.log(`\nBrowser mode: http://localhost:${port}`);
+    console.log(`\nMini Chess 5x7 running at http://localhost:${port}`);
   });
 
   return { server, wss };
@@ -187,5 +189,5 @@ if (require.main === module) {
 }
 
 module.exports = { start };
-// Convenience re-exports preserved for legacy consumers / tests.
+// Re-exported for tests and small tooling.
 module.exports.OUTBOUND = OUTBOUND;

@@ -80,6 +80,13 @@ responsibility and a strict downstream-only dependency rule.
 - Reads `state` / `validMoves` / `error` messages and renders the
   board. Sends `getMoves` / `move` / `reset` / `config` back.
 
+### 2.6 Browser feedback
+
+The browser UI derives move feedback from the authoritative
+`state.lastMove` sent by the server. When a new move is received, the UI
+highlights the last move, plays a short Web Audio move sound, and applies
+a brief animation to the destination square.
+
 ---
 
 ## 3. Data flow
@@ -96,7 +103,7 @@ Player clicks destination
     → server.onmessage → validateInbound
         → Match.findLegalMove → Match.applyPlayerMove
             ← server.send { type:"state", ... }      (after player move)
-        → Match.applyAiMove   (synchronous, blocks the event loop briefly)
+        → setTimeout (short delay) → Match.applyAiMove (sync, brief)
             ← server.send { type:"state", ... }      (after AI move)
 ```
 
@@ -110,9 +117,9 @@ move is legal — it only renders what the server says.
 - The server is single-threaded and synchronous within a request.
 - Each WebSocket connection has its own `Match`. Matches do not share
   state.
-- The AI runs synchronously inside the message handler. At depth 3 on
-  5×7 this is fast enough (tens of milliseconds) to be invisible to
-  the user.
+- The AI runs synchronously inside a short timeout. At depth 3 on 5×7
+  this is fast enough to remain responsive, while the delay makes the
+  AI response easier to follow.
 - There is no shared mutable state across connections. Multiple browser
   tabs play independent games against independent AI instances.
 

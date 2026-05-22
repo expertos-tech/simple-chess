@@ -222,3 +222,17 @@ Consequences:
 
 - The search is several times faster at depth 3.
 - The eval can be slightly noisy when one side has many pseudo-legal but illegal moves (e.g. pinned pieces). The effect is small enough to be acceptable for a didactic engine.
+
+## 016 - Lightweight browser feedback for version 1.0.0
+
+Decision:
+Mini Chess 5x7 uses lightweight browser-side feedback for moves, including a short synthesized move sound and a brief destination-square animation. The server schedules AI moves with a short delay to improve readability.
+
+Rationale:
+The game is browser-first, and immediate AI moves felt too abrupt. A small delay and subtle feedback make the game easier to follow without introducing assets, dependencies, or complex animation systems.
+
+Consequences:
+- Move sounds are generated with the Web Audio API.
+- No external audio file is required.
+- The UI derives animation from `state.lastMove`.
+- The AI move flow includes a short delay to improve perceived readability.

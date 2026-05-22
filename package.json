@@ -1,6 +1,6 @@
 {
   "name": "mini-chess-5x7",
-  "version": "0.4.0",
+  "version": "1.0.0",
   "description": "A compact browser-based chess variant powered by a small Node.js game engine.",
   "main": "src/server.js",
   "scripts": {

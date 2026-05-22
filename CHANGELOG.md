@@ -5,6 +5,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.0] - 2026-05-22
+
+### Added
+- Browser-first Mini Chess 5x7 gameplay.
+- WebSocket-based game state updates.
+- Minimax AI with alpha-beta pruning and evaluation heuristics.
+- Move highlighting, captured pieces, move history, movement feedback, and synthesized move sound.
+- Documentation for rules, architecture, testing, AI, and development.
+
+### Changed
+- Finalized the project identity as Mini Chess 5x7.
+
+### Removed
+- Removed the previous terminal/CLI gameplay mode.
+
 ## [0.4.0] - 2026-05-22
 
 ### Changed

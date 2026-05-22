@@ -77,6 +77,7 @@ This version is designed for speed while keeping the core "soul" of chess.
 
 A modern, point-and-click interface.
 
+- Browser-first interface with move highlighting, captured pieces, move history, subtle movement feedback, and wood-like move sound.
 - Interface: Real-time legal move highlighting.
 - UI: Includes move history and captured piece tracking.
 - Tech: Powered by Vue 3 and WebSockets.

@@ -262,6 +262,24 @@
         z-index: 1;
         display: block;
       }
+      .square.move-pop img {
+        animation: move-pop 220ms ease-out;
+      }
+
+      @keyframes move-pop {
+        0% {
+          transform: translateY(-8px) scale(0.92);
+          opacity: 0.75;
+        }
+        70% {
+          transform: translateY(2px) scale(1.04);
+          opacity: 1;
+        }
+        100% {
+          transform: translateY(0) scale(1);
+          opacity: 1;
+        }
+      }
 
       .file-labels {
         display: flex;
@@ -488,8 +506,12 @@
           const scoreWhite = ref(0);
           const scoreBlack = ref(0);
           const moveListEl = ref(null);
+          const animatedTo = ref(null);
 
           let ws = null;
+          let audioCtx = null;
+          let audioUnlocked = false;
+          let moveAnimTimer = null;
 
           function getWsOverride() {
             const params = new URLSearchParams(location.search);
@@ -523,6 +545,75 @@
             return url.toString();
           }
 
+          function ensureAudioContext() {
+            if (!audioCtx) {
+              const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+              if (!AudioContextClass) return null;
+              audioCtx = new AudioContextClass();
+            }
+
+            if (audioCtx.state === 'suspended') {
+              audioCtx.resume().catch(() => {});
+            }
+
+            return audioCtx;
+          }
+
+          function unlockAudio() {
+            const ctx = ensureAudioContext();
+            if (ctx) audioUnlocked = true;
+          }
+
+          function playMoveSound() {
+            if (!audioUnlocked) return;
+            const ctx = ensureAudioContext();
+            if (!ctx) return;
+
+            const now = ctx.currentTime;
+
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            const filter = ctx.createBiquadFilter();
+
+            osc.type = 'triangle';
+            osc.frequency.setValueAtTime(180, now);
+            osc.frequency.exponentialRampToValueAtTime(90, now + 0.045);
+
+            filter.type = 'lowpass';
+            filter.frequency.setValueAtTime(900, now);
+
+            gain.gain.setValueAtTime(0.0001, now);
+            gain.gain.exponentialRampToValueAtTime(0.16, now + 0.006);
+            gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.075);
+
+            osc.connect(filter);
+            filter.connect(gain);
+            gain.connect(ctx.destination);
+
+            osc.start(now);
+            osc.stop(now + 0.08);
+          }
+
+          function sameMove(a, b) {
+            if (!a || !b) return false;
+            return (
+              a.fromRow === b.fromRow &&
+              a.fromCol === b.fromCol &&
+              a.toRow === b.toRow &&
+              a.toCol === b.toCol &&
+              (a.promotion || '') === (b.promotion || '')
+            );
+          }
+
+          function triggerMoveFeedback(move) {
+            playMoveSound();
+            animatedTo.value = { row: move.toRow, col: move.toCol };
+            if (moveAnimTimer) window.clearTimeout(moveAnimTimer);
+            moveAnimTimer = window.setTimeout(() => {
+              animatedTo.value = null;
+            }, 260);
+          }
+
           const sideSelected = computed(
             () => playerSide.value === 'white' || playerSide.value === 'black'
           );
@@ -542,6 +633,7 @@
           }
 
           function chooseSide(side) {
+            unlockAudio();
             playerSide.value = side;
             ws = new WebSocket(buildWsUrl(side));
             ws.onopen = () => {
@@ -554,6 +646,7 @@
             ws.onmessage = (e) => {
               const msg = JSON.parse(e.data);
               if (msg.type === 'state') {
+                const previousLastMove = lastMove.value;
                 board.value = msg.board;
                 whiteTurn.value = msg.whiteTurn;
                 status.value = msg.status;
@@ -567,6 +660,12 @@
                 aiThinking.value = false;
                 selectedFrom.value = null;
                 validMoves.value = [];
+                if (!msg.lastMove) {
+                  if (moveAnimTimer) window.clearTimeout(moveAnimTimer);
+                  animatedTo.value = null;
+                } else if (!sameMove(previousLastMove, msg.lastMove)) {
+                  triggerMoveFeedback(msg.lastMove);
+                }
               } else if (msg.type === 'validMoves') {
                 selectedFrom.value = { row: msg.fromRow, col: msg.fromCol };
                 validMoves.value = msg.moves;
@@ -667,6 +766,10 @@
               if (row === fromD.row && col === fromD.col) classes.push('last-from');
               if (row === toD.row && col === toD.col) classes.push('last-to');
             }
+            if (animatedTo.value) {
+              const at = internalToDisplay(animatedTo.value.row, animatedTo.value.col);
+              if (row === at.row && col === at.col) classes.push('move-pop');
+            }
             if (isValidTarget(row, col)) {
               classes.push(hasPiece(row, col) ? 'valid-capture' : 'valid-move');
             }
@@ -679,6 +782,7 @@
           }
 
           function handleClick(idx) {
+            unlockAudio();
             if (status.value !== 'ongoing' || aiThinking.value || !playerToMove.value) return;
             const { row, col } = rowCol(idx);
             const internal = displayToInternal(row, col);
